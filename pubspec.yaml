@@ -1,0 +1,34 @@
+name: society_voting_system
+description: A Flutter voting system for gated society elections with SupaBase backend.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # SupaBase Integration
+  supabase_flutter: ^2.0.0
+  
+  # State Management
+  flutter_riverpod: ^2.4.0
+  
+  # Navigation
+  go_router: ^12.0.0
+  
+  # Image Picker
+  image_picker: ^1.0.4
+  
+  # Utilities
+  intl: ^0.18.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
