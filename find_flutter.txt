@@ -1,0 +1,3 @@
+find: ‘/home/roney/.local/share/containers/storage/overlay/e8bce0aabd687e9ee90e0bada33884f40b277196f72aac9934357472863a80ae/diff/home/ubuntu’: Permission denied
+find: ‘/home/roney/.local/share/containers/storage/overlay/e8bce0aabd687e9ee90e0bada33884f40b277196f72aac9934357472863a80ae/diff/var/cache/apt/archives/partial’: Permission denied
+find: ‘/home/roney/.local/share/containers/storage/overlay/97261f476952f09eecabe8d12db30248bd2b0bbba079ebf4671a4851f378fde6/diff/var/lib/apt/lists/partial’: Permission denied

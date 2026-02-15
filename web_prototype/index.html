@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Society Voting System - Prototype</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0B3C5D;
+            --primary-light: #1d5b8c;
+            --bg: #F2F4F6;
+            --card-bg: #FFFFFF;
+            --text: #2E2E2E;
+            --text-muted: #6b7280;
+            --border: #e2e8f0;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at top right, rgba(11, 60, 93, 0.05), transparent),
+                radial-gradient(circle at bottom left, rgba(11, 60, 93, 0.03), transparent);
+            overflow-x: hidden;
+        }
+
+        nav {
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            font-weight: 300;
+            color: var(--text-muted);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 5%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            letter-spacing: -1.5px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            font-weight: 300;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .category-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        .category-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--primary);
+        }
+
+        .category-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .candidate-item {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            padding: 1.25rem;
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            background: var(--bg);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .candidate-item:hover {
+            background: var(--white);
+            border-color: var(--primary);
+            transform: scale(1.02);
+        }
+
+        .candidate-item.selected {
+            background: var(--white);
+            border-color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(11, 60, 93, 0.1);
+        }
+
+        .candidate-img {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--white);
+        }
+
+        .candidate-info h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+            color: var(--text);
+        }
+
+        .candidate-info p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .radio-box {
+            margin-left: auto;
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            background: var(--white);
+        }
+
+        .candidate-item.selected .radio-box {
+            border-color: var(--primary);
+            border-width: 7px;
+        }
+
+        .btn-submit {
+            margin-top: 4rem;
+            width: 100%;
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: none;
+            background: var(--primary);
+            color: var(--white);
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 15px -3px rgba(11, 60, 93, 0.3);
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(11, 60, 93, 0.4);
+        }
+
+        .participation-wrapper {
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .stats-badge {
+            background: var(--white);
+            color: var(--primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 100px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse-animation 2s infinite;
+        }
+
+        @keyframes pulse-animation {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .user-chip {
+            background: var(--glass);
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="logo">ARTICLE<span>55</span></div>
+        <div class="user-chip">Dashboard • Block A - 402</div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>Society Elections 2026</h1>
+            <p>Empowering our community through transparent democracy.</p>
+        </div>
+
+        <div class="grid">
+            <!-- President -->
+            <div class="category-card">
+                <div class="category-title">01 / President</div>
+                <div class="candidate-item selected">
+                    <div class="candidate-img">ST</div>
+                    <div class="candidate-info">
+                        <h3>Sourav Tiwari</h3>
+                        <p>Vision for a sustainable society</p>
+                    </div>
+                    <div class="radio-box"></div>
+                </div>
+                <div class="candidate-item">
+                    <div class="candidate-img" style="background: linear-gradient(135deg, #f472b6, #db2777)">JD</div>
+                    <div class="candidate-info">
+                        <h3>John Doe</h3>
+                        <p>Safety and community first</p>
+                    </div>
+                    <div class="radio-box"></div>
+                </div>
+            </div>
+
+            <!-- Secretary -->
+            <div class="category-card">
+                <div class="category-title">02 / Secretary</div>
+                <div class="candidate-item">
+                    <div class="candidate-img" style="background: linear-gradient(135deg, #fbbf24, #d97706)">AS</div>
+                    <div class="candidate-info">
+                        <h3>Anita Sharma</h3>
+                        <p>Financial clarity and audit</p>
+                    </div>
+                    <div class="radio-box"></div>
+                </div>
+                <div class="candidate-item">
+                    <div class="candidate-img" style="background: linear-gradient(135deg, #34d399, #059669)">RK</div>
+                    <div class="candidate-info">
+                        <h3>Rajiv Kumar</h3>
+                        <p>Digital management expert</p>
+                    </div>
+                    <div class="radio-box"></div>
+                </div>
+            </div>
+
+            <!-- Treasurer -->
+            <div class="category-card">
+                <div class="category-title">03 / Treasurer</div>
+                <div class="candidate-item">
+                    <div class="candidate-img" style="background: linear-gradient(135deg, #818cf8, #4f46e5)">MP</div>
+                    <div class="candidate-info">
+                        <h3>Meera Patel</h3>
+                        <p>Optimized maintenance funds</p>
+                    </div>
+                    <div class="radio-box"></div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-submit">Submit Official Ballot</button>
+
+        <div class="participation-wrapper">
+            <div class="stats-badge">
+                <div class="pulse"></div> Live Participation: 84.2%
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.candidate-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const category = item.closest('.category-card');
+                category.querySelectorAll('.candidate-item').forEach(i => i.classList.remove('selected'));
+                item.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+
+</html>

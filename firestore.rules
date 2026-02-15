@@ -1,0 +1,38 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is an admin
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Users table
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow update: if isAdmin() || (request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['hasVoted', 'role']));
+    }
+
+    // Candidates table
+    match /candidates/{candidateId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null; // Anyone can apply as a candidate
+      allow update, delete: if isAdmin();
+    }
+
+    // Votes table (Critical Security)
+    match /votes/{voteId} {
+      allow read: if isAdmin(); // Only admins can audit votes
+      allow create: if request.auth != null 
+                    && !get(/databases/$(database)/documents/users/$(request.auth.uid)).data.hasVoted;
+                    // Note: Flat uniqueness is further protected by VotingService transaction or Cloud Function
+    }
+
+    // Audit Logs
+    match /audit_logs/{logId} {
+      allow read, create: if isAdmin();
+    }
+  }
+}

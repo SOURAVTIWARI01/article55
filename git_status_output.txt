@@ -1,0 +1,15 @@
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.gitignore
+	README_SETUP.md
+	database/
+	git_branch_output.txt
+	git_log_output.txt
+	git_status_output.txt
+	lib/
+	pubspec.yaml
+
+nothing added to commit but untracked files present (use "git add" to track)
