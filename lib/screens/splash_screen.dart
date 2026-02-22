@@ -88,65 +88,68 @@ class _SplashScreenState extends State<SplashScreen>
 
             // Main content
             SafeArea(
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: ScaleTransition(
-                  scale: _scaleAnimation,
-                  child: Column(
-                    children: [
-                      const Spacer(flex: 3),
+              child: SizedBox.expand(
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Spacer(flex: 3),
 
-                      // Logo container
-                      _buildLogoContainer(),
-                      const SizedBox(height: 24),
+                        // Logo container
+                        _buildLogoContainer(),
+                        const SizedBox(height: 24),
 
-                      // Title
-                      Text(
-                        AppStrings.appName,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 36,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF1E1B4B),
-                          letterSpacing: -0.5,
+                        // Title
+                        Text(
+                          AppStrings.appName,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 36,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF1E1B4B),
+                            letterSpacing: -0.5,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
+                        const SizedBox(height: 8),
 
-                      // Subtitle
-                      Text(
-                        AppStrings.tagline.toUpperCase(),
-                        style: GoogleFonts.cinzel(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          color: const Color(0xFF312E81),
-                          letterSpacing: 2,
+                        // Subtitle
+                        Text(
+                          AppStrings.tagline.toUpperCase(),
+                          style: GoogleFonts.cinzel(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: const Color(0xFF312E81),
+                            letterSpacing: 2,
+                          ),
                         ),
-                      ),
 
-                      const Spacer(flex: 3),
+                        const Spacer(flex: 3),
 
-                      // Loading dots
-                      const LoadingIndicator(
-                        color: Color(0xFF6B7280),
-                        size: 10,
-                      ),
-                      const SizedBox(height: 32),
-
-                      // Security badge
-                      _buildSecurityBadge(),
-                      const SizedBox(height: 16),
-
-                      // Version
-                      Text(
-                        AppStrings.version,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 11,
-                          color: Colors.grey.shade500,
-                          letterSpacing: 2,
+                        // Loading dots
+                        const LoadingIndicator(
+                          color: Color(0xFF6B7280),
+                          size: 10,
                         ),
-                      ),
-                      const SizedBox(height: 32),
-                    ],
+                        const SizedBox(height: 32),
+
+                        // Security badge
+                        _buildSecurityBadge(),
+                        const SizedBox(height: 16),
+
+                        // Version
+                        Text(
+                          AppStrings.version,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 11,
+                            color: Colors.grey.shade500,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                      ],
+                    ),
                   ),
                 ),
               ),
