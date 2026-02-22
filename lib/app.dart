@@ -8,7 +8,7 @@ import 'screens/registration_screen.dart';
 import 'screens/user_dashboard_screen.dart';
 import 'screens/admin_dashboard_screen.dart';
 
-/// Root application widget with routing and providers.
+/// Root application widget with routing, providers, and theme support.
 class Article55App extends StatelessWidget {
   const Article55App({super.key});
 
@@ -22,15 +22,29 @@ class Article55App extends StatelessWidget {
         title: 'Article 55',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.light,
         initialRoute: '/',
-        routes: {
-          '/': (context) => const SplashScreen(),
-          '/login': (context) => const LoginScreen(),
-          '/register': (context) => const RegistrationScreen(),
-          '/user-dashboard': (context) => const UserDashboardScreen(),
-          '/admin-dashboard': (context) => const AdminDashboardScreen(),
-        },
+        onGenerateRoute: _onGenerateRoute,
       ),
     );
+  }
+
+  /// Route generator with fade+slide page transitions.
+  Route<dynamic>? _onGenerateRoute(RouteSettings settings) {
+    switch (settings.name) {
+      case '/':
+        return AppTheme.fadeSlideRoute(const SplashScreen());
+      case '/login':
+        return AppTheme.fadeSlideRoute(const LoginScreen());
+      case '/register':
+        return AppTheme.fadeSlideRoute(const RegistrationScreen());
+      case '/user-dashboard':
+        return AppTheme.fadeSlideRoute(const UserDashboardScreen());
+      case '/admin-dashboard':
+        return AppTheme.fadeSlideRoute(const AdminDashboardScreen());
+      default:
+        return AppTheme.fadeSlideRoute(const LoginScreen());
+    }
   }
 }
