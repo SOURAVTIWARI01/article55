@@ -57,4 +57,20 @@ class AppStrings {
   static const String manageResidency = 'Manage residency';
   static const String liveMonitoring = 'Live Monitoring';
   static const String viewAll = 'View All';
+
+  // Phase 2 — Candidates & Voting
+  static const String runForOffice = 'Run for Office';
+  static const String submitCandidature = 'Submit Candidature';
+  static const String awaitingApproval = 'Awaiting Admin Approval';
+  static const String candidateApproval = 'Candidate Approval';
+  static const String castYourVote = 'Cast Your Vote';
+  static const String voteConfirm = 'Confirm Vote';
+  static const String liveResults = 'Live Results';
+  static const String alreadyVoted = 'You have already voted in this category';
+  static const String voteSuccess = 'Vote cast successfully!';
+  static const String voteFailed = 'Vote failed. Please try again.';
+  static const String duplicateVote = 'Your flat has already voted in this category.';
+  static const String president = 'President';
+  static const String secretary = 'Secretary';
+  static const String treasurer = 'Treasurer';
 }
