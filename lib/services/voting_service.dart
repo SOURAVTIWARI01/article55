@@ -1,13 +1,14 @@
 import 'dart:async';
 import '../config/env_config.dart';
 import '../models/vote_model.dart';
+import 'admin_service.dart';
 import 'supabase_service.dart';
 
 /// Service for voting operations with atomic vote casting.
 /// Supports both Supabase (RPC) and demo mode.
 class VotingService {
-  // ─── Demo Data ──────────────────────────────────────────────
-  static final List<VoteModel> _demoVotes = [];
+  // ─── Demo Data (visible to AdminService) ────────────────────
+  static final List<VoteModel> demoVotes = [];
 
   // ─── Cast Vote (Atomic) ────────────────────────────────────
   Future<void> castVote({
@@ -40,7 +41,7 @@ class VotingService {
   // ─── Check if Flat Already Voted ───────────────────────────
   Future<bool> hasVoted(String flatNumber, String category) async {
     if (EnvConfig.demoMode) {
-      return _demoVotes.any(
+      return demoVotes.any(
         (v) => v.flatNumber == flatNumber && v.category == category,
       );
     }
@@ -58,7 +59,7 @@ class VotingService {
   // ─── Get Voted Categories for a Flat ───────────────────────
   Future<Set<String>> getVotedCategories(String flatNumber) async {
     if (EnvConfig.demoMode) {
-      return _demoVotes
+      return demoVotes
           .where((v) => v.flatNumber == flatNumber)
           .map((v) => v.category)
           .toSet();
@@ -119,15 +120,20 @@ class VotingService {
     required String candidateId,
     required String voteType,
   }) {
+    // Check if flat is blocked
+    if (AdminService.isFlatBlocked(flatNumber)) {
+      throw Exception('This flat has been blocked from voting. Contact admin.');
+    }
+
     // Check for duplicate (one vote per flat per category)
-    final existing = _demoVotes.any(
+    final existing = demoVotes.any(
       (v) => v.flatNumber == flatNumber && v.category == category,
     );
     if (existing) {
       throw Exception('Your flat has already voted in this category.');
     }
 
-    _demoVotes.add(VoteModel(
+    demoVotes.add(VoteModel(
       id: 'vote-${DateTime.now().millisecondsSinceEpoch}',
       userId: userId,
       flatNumber: flatNumber,
@@ -139,7 +145,7 @@ class VotingService {
   }
 
   List<VoteCount> _demoGetVoteCounts(String category) {
-    final votesInCategory = _demoVotes.where((v) => v.category == category);
+    final votesInCategory = demoVotes.where((v) => v.category == category);
     final Map<String, int> counts = {};
     final Map<String, String> names = {};
 

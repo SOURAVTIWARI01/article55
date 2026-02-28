@@ -4,8 +4,9 @@ import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_strings.dart';
 import '../providers/auth_provider.dart';
+import '../providers/admin_dashboard_provider.dart';
 
-/// Admin dashboard matching design: stats, quick actions, live monitoring, FAB nav.
+/// Admin dashboard with live stats, category distribution, quick actions.
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
 
@@ -13,8 +14,17 @@ class AdminDashboardScreen extends StatefulWidget {
   State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
 }
 
-class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
+class _AdminDashboardScreenState extends State<AdminDashboardScreen>
+    with TickerProviderStateMixin {
   int _selectedNavIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AdminDashboardProvider>().fetchStats();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +70,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   _buildWelcomeRow(),
                   const SizedBox(height: 20),
                   _buildStatsGrid(),
+                  const SizedBox(height: 20),
+                  _buildCategoryDistribution(),
                   const SizedBox(height: 28),
                   _buildQuickActions(),
                   const SizedBox(height: 28),
@@ -147,7 +159,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
-          // Admin icon
           Container(
             width: 40,
             height: 40,
@@ -187,7 +198,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ],
           ),
           const Spacer(),
-          // Logout
           GestureDetector(
             onTap: _showLogoutDialog,
             child: Container(
@@ -205,30 +215,73 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildStatsGrid() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Row(
-        children: [
-          Expanded(child: _buildStatCard(
-            label: AppStrings.totalVotes,
-            value: '24,592',
-            badge: '+12.5%',
-            badgeColor: AppColors.success,
-            icon: Icons.how_to_vote_outlined,
-            iconColor: AppColors.info,
-          )),
-          const SizedBox(width: 16),
-          Expanded(child: _buildStatCard(
-            label: AppStrings.turnout,
-            value: '87.4%',
-            badge: 'Active',
-            badgeColor: AppColors.success,
-            icon: Icons.pie_chart_outline,
-            iconColor: AppColors.accent,
-            badgeIcon: Icons.check_circle,
-          )),
-        ],
-      ),
+    return Consumer<AdminDashboardProvider>(
+      builder: (context, prov, _) {
+        final stats = prov.stats;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                      child: _buildStatCard(
+                    label: 'Total Votes',
+                    value: '${stats.totalVotes}',
+                    badge: stats.totalVotes > 0 ? 'Active' : 'No votes',
+                    badgeColor: AppColors.success,
+                    icon: Icons.how_to_vote_outlined,
+                    iconColor: AppColors.info,
+                  )),
+                  const SizedBox(width: 12),
+                  Expanded(
+                      child: _buildStatCard(
+                    label: 'Turnout',
+                    value:
+                        '${stats.turnoutPercent.toStringAsFixed(1)}%',
+                    badge: stats.turnoutPercent > 50 ? 'Good' : 'Low',
+                    badgeColor: stats.turnoutPercent > 50
+                        ? AppColors.success
+                        : AppColors.warning,
+                    icon: Icons.pie_chart_outline,
+                    iconColor: AppColors.accent,
+                    badgeIcon: Icons.check_circle,
+                  )),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                      child: _buildStatCard(
+                    label: 'Registered',
+                    value: '${stats.totalUsers}',
+                    badge: 'Users',
+                    badgeColor: AppColors.info,
+                    icon: Icons.people_outline,
+                    iconColor: Colors.blue,
+                  )),
+                  const SizedBox(width: 12),
+                  Expanded(
+                      child: _buildStatCard(
+                    label: 'Candidates',
+                    value: '${stats.totalCandidates}',
+                    badge: '${stats.pendingCandidates} pending',
+                    badgeColor: stats.pendingCandidates > 0
+                        ? AppColors.warning
+                        : AppColors.success,
+                    icon: Icons.person_search_outlined,
+                    iconColor: Colors.orange,
+                    badgeIcon: stats.pendingCandidates > 0
+                        ? Icons.pending
+                        : Icons.check_circle,
+                  )),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -242,10 +295,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     IconData? badgeIcon,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(color: Colors.white.withValues(alpha: 0.6)),
         boxShadow: [
           BoxShadow(
@@ -260,7 +313,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           Positioned(
             top: -8,
             right: -8,
-            child: Icon(icon, size: 48, color: iconColor.withValues(alpha: 0.1)),
+            child:
+                Icon(icon, size: 48, color: iconColor.withValues(alpha: 0.1)),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,23 +322,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               Text(
                 label,
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13,
+                  fontSize: 12,
                   color: Colors.grey.shade500,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                value,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
-                ),
-              ),
+              _AnimatedCountText(value: value),
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: badgeColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
@@ -298,12 +346,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       color: badgeColor,
                     ),
                     const SizedBox(width: 4),
-                    Text(
-                      badge,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: badgeColor,
+                    Flexible(
+                      child: Text(
+                        badge,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: badgeColor,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -313,6 +364,105 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCategoryDistribution() {
+    return Consumer<AdminDashboardProvider>(
+      builder: (context, prov, _) {
+        final stats = prov.stats;
+        final maxVotes = [
+          stats.presidentVotes,
+          stats.secretaryVotes,
+          stats.treasurerVotes,
+        ].reduce((a, b) => a > b ? a : b).clamp(1, double.maxFinite.toInt());
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.9),
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.6)),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF1F2687).withValues(alpha: 0.04),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Category Distribution',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildBar('President', stats.presidentVotes, maxVotes,
+                    AppColors.info),
+                const SizedBox(height: 12),
+                _buildBar('Secretary', stats.secretaryVotes, maxVotes,
+                    AppColors.accent),
+                const SizedBox(height: 12),
+                _buildBar('Treasurer', stats.treasurerVotes, maxVotes,
+                    AppColors.success),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBar(String label, int count, int max, Color color) {
+    final fraction = max > 0 ? count / max : 0.0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade700,
+              ),
+            ),
+            Text(
+              '$count votes',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: fraction),
+            duration: const Duration(milliseconds: 800),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, _) => LinearProgressIndicator(
+              value: value,
+              backgroundColor: Colors.grey.shade100,
+              valueColor: AlwaysStoppedAnimation(color),
+              minHeight: 8,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -332,23 +482,43 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   color: AppColors.textPrimary,
                 ),
               ),
-              Text(
-                AppStrings.editLayout,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+              GestureDetector(
+                onTap: () => context.read<AdminDashboardProvider>().refresh(),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.refresh, size: 14, color: AppColors.primary),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Refresh',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
 
-          // Action cards
+          // Top row
           Row(
             children: [
-              Expanded(child: GestureDetector(
-                onTap: () => Navigator.of(context).pushNamed('/admin-approval'),
+              Expanded(
+                  child: GestureDetector(
+                onTap: () =>
+                    Navigator.of(context).pushNamed('/admin-approval'),
                 child: _buildActionCard(
                   title: 'Candidates',
                   subtitle: 'Review & Approve',
@@ -357,33 +527,59 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   shadowColor: AppColors.info,
                 ),
               )),
-              const SizedBox(width: 16),
-              Expanded(child: GestureDetector(
-                onTap: () => Navigator.of(context).pushNamed('/results'),
+              const SizedBox(width: 12),
+              Expanded(
+                  child: GestureDetector(
+                onTap: () => Navigator.of(context).pushNamed('/admin-votes'),
                 child: _buildActionCard(
-                  title: 'Results',
-                  subtitle: 'Live Vote Counts',
-                  icon: Icons.bar_chart,
+                  title: 'Votes',
+                  subtitle: 'Monitor & Manage',
+                  icon: Icons.ballot_outlined,
                   gradient: AppColors.accentGradient,
                   shadowColor: AppColors.accent,
                 ),
               )),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
-          // Chip row
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildChip(Icons.analytics_outlined, 'Reports'),
-                const SizedBox(width: 12),
-                _buildChip(Icons.verified_user_outlined, 'Audit Logs'),
-                const SizedBox(width: 12),
-                _buildChip(Icons.settings_outlined, 'Config'),
-              ],
-            ),
+          // Bottom row
+          Row(
+            children: [
+              Expanded(
+                  child: GestureDetector(
+                onTap: () =>
+                    Navigator.of(context).pushNamed('/admin-analytics'),
+                child: _buildActionCard(
+                  title: 'Analytics',
+                  subtitle: 'Charts & Results',
+                  icon: Icons.bar_chart_rounded,
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shadowColor: AppColors.success,
+                ),
+              )),
+              const SizedBox(width: 12),
+              Expanded(
+                  child: GestureDetector(
+                onTap: () =>
+                    Navigator.of(context).pushNamed('/admin-blocked'),
+                child: _buildActionCard(
+                  title: 'Security',
+                  subtitle: 'Blocked Flats',
+                  icon: Icons.shield_outlined,
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shadowColor: AppColors.error,
+                ),
+              )),
+            ],
           ),
         ],
       ),
@@ -398,10 +594,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     required Color shadowColor,
   }) {
     return Container(
-      height: 130,
+      height: 120,
       decoration: BoxDecoration(
         gradient: gradient,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
             color: shadowColor.withValues(alpha: 0.3),
@@ -412,10 +608,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       ),
       child: Stack(
         children: [
-          // Texture overlay
           Positioned.fill(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(22),
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -431,14 +626,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: 38,
+                  height: 38,
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
@@ -451,12 +646,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     Text(
                       title,
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 16,
+                        fontSize: 15,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 2),
                     Text(
                       subtitle,
                       style: TextStyle(
@@ -474,101 +668,99 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildChip(IconData icon, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade100),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: Colors.grey.shade500),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey.shade700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildLiveMonitoring() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Consumer<AdminDashboardProvider>(
+      builder: (context, prov, _) {
+        final stats = prov.stats;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
             children: [
-              Text(
-                AppStrings.liveMonitoring,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppStrings.liveMonitoring,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.success.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: AppColors.success,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'LIVE',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.success,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                AppStrings.viewAll,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
-                ),
+              const SizedBox(height: 16),
+              _buildMonitoringCard(
+                title: 'Election Votes',
+                subtitle:
+                    '${stats.totalVotes} total • ${stats.totalCandidates} candidates',
+                status: stats.totalVotes > 0 ? 'Active' : 'Waiting',
+                statusColor:
+                    stats.totalVotes > 0 ? AppColors.success : AppColors.warning,
+                progress: stats.turnoutPercent / 100,
+                progressColor: AppColors.info,
+                bottomLeft: '${stats.totalUsers} Registered',
+                bottomRight:
+                    '${stats.turnoutPercent.toStringAsFixed(0)}% Turnout',
+                bottomRightColor: AppColors.info,
+                icon: Icons.how_to_vote,
+                iconBgColor: Colors.blue.shade50,
+                iconColor: Colors.blue.shade400,
+              ),
+              const SizedBox(height: 12),
+              _buildMonitoringCard(
+                title: 'Security Status',
+                subtitle:
+                    '${stats.blockedFlats} blocked flat${stats.blockedFlats != 1 ? 's' : ''}',
+                status: stats.blockedFlats > 0 ? 'Alert' : 'Clear',
+                statusColor: stats.blockedFlats > 0
+                    ? AppColors.error
+                    : AppColors.success,
+                progress: 1.0,
+                progressColor: stats.blockedFlats > 0
+                    ? AppColors.error
+                    : AppColors.success,
+                bottomLeft: 'RLS Active',
+                bottomRight: 'Enforced',
+                bottomRightColor: AppColors.success,
+                icon: Icons.security,
+                iconBgColor: Colors.purple.shade50,
+                iconColor: Colors.purple.shade400,
               ),
             ],
           ),
-          const SizedBox(height: 16),
-
-          // Monitoring card 1 - New Park Renovation
-          _buildMonitoringCard(
-            title: 'New Park Renovation',
-            subtitle: 'Ending in 4 hours • High Priority',
-            status: 'Live',
-            statusColor: AppColors.success,
-            progress: 0.72,
-            progressColor: AppColors.info,
-            bottomLeft: '1,204 Votes',
-            bottomRight: '72% Goal',
-            bottomRightColor: AppColors.info,
-            icon: Icons.park,
-            iconBgColor: Colors.blue.shade50,
-            iconColor: Colors.blue.shade400,
-          ),
-          const SizedBox(height: 16),
-
-          // Monitoring card 2 - Gate Security Upgrade
-          _buildMonitoringCard(
-            title: 'Gate Security Upg...',
-            subtitle: 'Requires approval • Budget Review',
-            status: 'Pending',
-            statusColor: AppColors.warning,
-            progress: 0.30,
-            progressColor: AppColors.warning,
-            bottomLeft: 'Board Review',
-            bottomRight: 'Step 2/4',
-            bottomRightColor: AppColors.warning,
-            icon: Icons.security,
-            iconBgColor: Colors.purple.shade50,
-            iconColor: Colors.purple.shade400,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -590,7 +782,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(color: Colors.white.withValues(alpha: 0.6)),
         boxShadow: [
           BoxShadow(
@@ -602,10 +794,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       ),
       child: Row(
         children: [
-          // Icon
           Container(
-            width: 56,
-            height: 56,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
               color: iconBgColor,
               borderRadius: BorderRadius.circular(16),
@@ -613,8 +804,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             child: Icon(icon, color: iconColor, size: 24),
           ),
           const SizedBox(width: 14),
-
-          // Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -662,11 +851,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),
-                // Progress bar
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
-                    value: progress,
+                    value: progress.clamp(0, 1),
                     backgroundColor: Colors.grey.shade200,
                     valueColor: AlwaysStoppedAnimation<Color>(progressColor),
                     minHeight: 5,
@@ -727,29 +915,31 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           ...List.generate(2, (i) => _buildNavItem(items[i], i)),
-
           // FAB
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.info.withValues(alpha: 0.4),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-                border: Border.all(color: Colors.white, width: 3),
+            child: GestureDetector(
+              onTap: () =>
+                  Navigator.of(context).pushNamed('/admin-approval'),
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: AppColors.primaryGradient,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.info.withValues(alpha: 0.4),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                  border: Border.all(color: Colors.white, width: 3),
+                ),
+                child: const Icon(Icons.add, color: Colors.white, size: 24),
               ),
-              child: const Icon(Icons.add, color: Colors.white, size: 24),
             ),
           ),
-
           ...List.generate(2, (i) => _buildNavItem(items[i + 2], i + 2)),
         ],
       ),
@@ -804,10 +994,47 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               context.read<AuthProvider>().signOut();
               Navigator.of(context).pushReplacementNamed('/login');
             },
-            child: const Text('Logout', style: TextStyle(color: AppColors.error)),
+            child:
+                const Text('Logout', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Animated count-up text widget.
+class _AnimatedCountText extends StatelessWidget {
+  final String value;
+  const _AnimatedCountText({required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    // Parse numeric value for animation
+    final numericStr = value.replaceAll(RegExp(r'[^0-9.]'), '');
+    final suffix = value.replaceAll(RegExp(r'[0-9.]'), '');
+    final number = double.tryParse(numericStr) ?? 0;
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: number),
+      duration: const Duration(milliseconds: 1200),
+      curve: Curves.easeOutCubic,
+      builder: (context, animValue, _) {
+        String display;
+        if (number == number.roundToDouble()) {
+          display = '${animValue.toInt()}$suffix';
+        } else {
+          display = '${animValue.toStringAsFixed(1)}$suffix';
+        }
+        return Text(
+          display,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary,
+          ),
+        );
+      },
     );
   }
 }
