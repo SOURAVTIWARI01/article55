@@ -347,20 +347,26 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           // Action cards
           Row(
             children: [
-              Expanded(child: _buildActionCard(
-                title: AppStrings.createPoll,
-                subtitle: AppStrings.startNewVote,
-                icon: Icons.add_chart,
-                gradient: AppColors.primaryGradient,
-                shadowColor: AppColors.info,
+              Expanded(child: GestureDetector(
+                onTap: () => Navigator.of(context).pushNamed('/admin-approval'),
+                child: _buildActionCard(
+                  title: 'Candidates',
+                  subtitle: 'Review & Approve',
+                  icon: Icons.person_search,
+                  gradient: AppColors.primaryGradient,
+                  shadowColor: AppColors.info,
+                ),
               )),
               const SizedBox(width: 16),
-              Expanded(child: _buildActionCard(
-                title: AppStrings.users,
-                subtitle: AppStrings.manageResidency,
-                icon: Icons.people_outline,
-                gradient: AppColors.accentGradient,
-                shadowColor: AppColors.accent,
+              Expanded(child: GestureDetector(
+                onTap: () => Navigator.of(context).pushNamed('/results'),
+                child: _buildActionCard(
+                  title: 'Results',
+                  subtitle: 'Live Vote Counts',
+                  icon: Icons.bar_chart,
+                  gradient: AppColors.accentGradient,
+                  shadowColor: AppColors.accent,
+                ),
               )),
             ],
           ),

@@ -36,6 +36,8 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                   _buildHeader(userName),
                   const SizedBox(height: 24),
                   _buildDashboardCard(),
+                  const SizedBox(height: 20),
+                  _buildQuickActions(),
                   const SizedBox(height: 28),
                   _buildRecentPolls(),
                   const SizedBox(height: 28),
@@ -147,118 +149,200 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
   }
 
   Widget _buildDashboardCard() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Stack(
-        children: [
-          // Shadow
-          Positioned(
-            left: 20,
-            right: 20,
-            bottom: -8,
-            child: Container(
-              height: 100,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(24),
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pushNamed('/voting'),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Stack(
+          children: [
+            // Shadow
+            Positioned(
+              left: 20,
+              right: 20,
+              bottom: -8,
+              child: Container(
+                height: 100,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(24),
+                ),
               ),
             ),
-          ),
-          // Card
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1A1C23),
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Stack(
-              children: [
-                // Decorative circles
-                Positioned(
-                  top: -30,
-                  right: -20,
-                  child: Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.primary.withValues(alpha: 0.2),
-                    ),
+            // Card
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1A1C23),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
                   ),
-                ),
-                Positioned(
-                  bottom: -20,
-                  left: -16,
-                  child: Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.accent.withValues(alpha: 0.15),
-                    ),
-                  ),
-                ),
-                // Content
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppStrings.yourDashboard,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 13,
-                            color: Colors.grey.shade400,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '12 ${AppStrings.activePolls}',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Text(
-                              AppStrings.showDetails,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 13,
-                                color: Colors.grey.shade400,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Icon(Icons.arrow_forward,
-                                size: 14, color: Colors.grey.shade400),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Container(
-                      width: 48,
-                      height: 48,
+                ],
+              ),
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: -30,
+                    right: -20,
+                    child: Container(
+                      width: 80,
+                      height: 80,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(16),
+                        shape: BoxShape.circle,
+                        color: AppColors.primary.withValues(alpha: 0.2),
                       ),
-                      child: const Icon(Icons.chevron_right,
-                          color: Colors.white, size: 24),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: -20,
+                    left: -16,
+                    child: Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.accent.withValues(alpha: 0.15),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            AppStrings.yourDashboard,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 13,
+                              color: Colors.grey.shade400,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '3 ${AppStrings.activePolls}',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Text(
+                                'Vote Now',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade400,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(Icons.arrow_forward,
+                                  size: 14, color: Colors.grey.shade400),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Icon(Icons.how_to_vote,
+                            color: Colors.white, size: 24),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickActions() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () => Navigator.of(context).pushNamed('/voting'),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: AppColors.primaryGradient,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-              ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.how_to_vote, color: Colors.white, size: 24),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Cast Your\nVote',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => Navigator.of(context).pushNamed('/candidate-form'),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: AppColors.accentGradient,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.accent.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.person_add, color: Colors.white, size: 24),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Run for\nOffice',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
