@@ -28,8 +28,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       body: Stack(
         children: [
           // Background blurs
@@ -948,8 +949,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
 
   Widget _buildNavItem(IconData icon, int index) {
     final isSelected = index == _selectedNavIndex;
+    // Route mapping: 0=dashboard(stay), 1=analytics, 2=votes, 3=blocked flats
+    final routes = {
+      1: '/admin-analytics',
+      2: '/admin-votes',
+      3: '/admin-blocked',
+    };
     return GestureDetector(
-      onTap: () => setState(() => _selectedNavIndex = index),
+      onTap: () {
+        setState(() => _selectedNavIndex = index);
+        final route = routes[index];
+        if (route != null) {
+          Navigator.of(context).pushNamed(route);
+        }
+      },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12),
         child: Column(

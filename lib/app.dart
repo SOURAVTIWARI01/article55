@@ -9,6 +9,7 @@ import 'providers/admin_provider.dart';
 import 'providers/admin_dashboard_provider.dart';
 import 'providers/vote_monitoring_provider.dart';
 import 'providers/security_provider.dart';
+import 'providers/theme_provider.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/registration_screen.dart';
@@ -37,15 +38,18 @@ class Article55App extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AdminDashboardProvider()),
         ChangeNotifierProvider(create: (_) => VoteMonitoringProvider()),
         ChangeNotifierProvider(create: (_) => SecurityProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: MaterialApp(
-        title: 'Article 55',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.light,
-        initialRoute: '/',
-        onGenerateRoute: _onGenerateRoute,
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProv, _) => MaterialApp(
+          title: 'Article 55',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeProv.themeMode,
+          initialRoute: '/',
+          onGenerateRoute: _onGenerateRoute,
+        ),
       ),
     );
   }

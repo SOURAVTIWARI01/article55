@@ -82,12 +82,13 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.splashGradient,
+        decoration: BoxDecoration(
+          gradient: isDark ? AppColors.splashGradientDark : AppColors.splashGradient,
         ),
         child: Stack(
           children: [
@@ -139,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen>
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 28,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
+                            color: isDark ? Colors.white : AppColors.textPrimary,
                           ),
                         ),
                         Text(
@@ -155,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen>
                           AppStrings.subtitle,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 13,
-                            color: Colors.grey.shade500,
+                            color: isDark ? Colors.grey.shade400 : Colors.grey.shade500,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -250,17 +251,18 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildLoginCard() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Consumer<AuthProvider>(
       builder: (context, auth, _) {
         return Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.7),
+            color: isDark ? AppColors.surfaceDark.withValues(alpha: 0.7) : Colors.white.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
+            border: Border.all(color: isDark ? AppColors.glassBorderDark : Colors.white.withValues(alpha: 0.5)),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF1F2687).withValues(alpha: 0.08),
+                color: const Color(0xFF1F2687).withValues(alpha: isDark ? 0.15 : 0.08),
                 blurRadius: 32,
                 offset: const Offset(0, 8),
               ),
@@ -380,13 +382,14 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildSocialButton(IconData icon, Color iconColor) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: 56,
       height: 56,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: isDark ? Colors.grey.shade700 : Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -395,7 +398,7 @@ class _LoginScreenState extends State<LoginScreen>
           ),
         ],
       ),
-      child: Icon(icon, color: iconColor, size: 28),
+      child: Icon(icon, color: isDark ? Colors.grey.shade300 : iconColor, size: 28),
     );
   }
 }

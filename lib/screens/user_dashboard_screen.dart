@@ -21,8 +21,10 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
     final auth = context.watch<AuthProvider>();
     final userName = auth.currentUser?.name ?? 'User';
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       body: Stack(
         children: [
           // Main scrollable content
@@ -40,8 +42,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                   _buildQuickActions(),
                   const SizedBox(height: 28),
                   _buildRecentPolls(),
-                  const SizedBox(height: 28),
-                  _buildCommunityActive(),
+
                 ],
               ),
             ),
@@ -60,6 +61,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
   }
 
   Widget _buildHeader(String userName) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     // Get greeting based on time of day
     final hour = DateTime.now().hour;
     String greeting;
@@ -85,7 +87,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: isDark ? Colors.white : AppColors.textPrimary,
                     height: 1.2,
                   ),
                 ),
@@ -108,7 +110,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade500,
+                        color: isDark ? Colors.grey.shade400 : Colors.grey.shade500,
                         letterSpacing: 1.5,
                       ),
                     ),
@@ -137,8 +139,15 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                 backgroundColor: Colors.white,
                 child: CircleAvatar(
                   radius: 26,
-                  backgroundColor: Colors.pink.shade50,
-                  child: Icon(Icons.person, color: Colors.pink.shade300, size: 28),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.15),
+                  child: Text(
+                    userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.primary,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -529,75 +538,10 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
     );
   }
 
-  Widget _buildCommunityActive() {
-    final communityMembers = [
-      {'name': 'Felix', 'color': Colors.blue, 'active': true},
-      {'name': 'Aneka', 'color': Colors.orange, 'active': false},
-      {'name': 'Mark', 'color': Colors.green, 'active': false},
-      {'name': 'Sarah', 'color': Colors.pink, 'active': false},
-      {'name': 'John', 'color': Colors.purple, 'active': false},
-    ];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            AppStrings.communityActive,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: communityMembers.map((member) {
-              final isActive = member['active'] as bool;
-              final color = member['color'] as Color;
-              return Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isActive ? AppColors.primary : Colors.transparent,
-                        width: 2,
-                        strokeAlign: BorderSide.strokeAlignOutside,
-                      ),
-                    ),
-                    child: CircleAvatar(
-                      radius: 28,
-                      backgroundColor: color.withValues(alpha: 0.15),
-                      child: Icon(Icons.person, color: color, size: 24),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    member['name'] as String,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildBottomNav() {
     final items = [
       Icons.home,
       Icons.poll,
-      Icons.notifications_none,
-      Icons.person_outline,
     ];
 
     return Container(
@@ -618,7 +562,12 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
         children: List.generate(items.length, (i) {
           final isSelected = i == _selectedNavIndex;
           return GestureDetector(
-            onTap: () => setState(() => _selectedNavIndex = i),
+            onTap: () {
+              setState(() => _selectedNavIndex = i);
+              if (i == 1) {
+                Navigator.of(context).pushNamed('/results');
+              }
+            },
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

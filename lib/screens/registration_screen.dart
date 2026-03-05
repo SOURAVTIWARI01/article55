@@ -5,6 +5,7 @@ import '../core/constants/app_colors.dart';
 import '../core/constants/app_strings.dart';
 import '../core/utils/validators.dart';
 import '../providers/auth_provider.dart';
+import '../providers/theme_provider.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/gradient_button.dart';
 
@@ -96,12 +97,13 @@ class _RegistrationScreenState extends State<RegistrationScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.splashGradient,
+        decoration: BoxDecoration(
+          gradient: isDark ? AppColors.splashGradientDark : AppColors.splashGradient,
         ),
         child: SafeArea(
           child: FadeTransition(
@@ -125,7 +127,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 28,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
+                            color: isDark ? Colors.white : AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -133,7 +135,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                           AppStrings.registrationSubtitle,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 13,
-                            color: Colors.grey.shade600,
+                            color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                             height: 1.5,
                           ),
                         ),
@@ -191,6 +193,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
   }
 
   Widget _buildTopBar() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -203,10 +206,11 @@ class _RegistrationScreenState extends State<RegistrationScreen>
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.5),
+                color: (isDark ? Colors.white : Colors.white).withValues(alpha: isDark ? 0.1 : 0.5),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(Icons.arrow_back_ios_new, size: 18),
+              child: Icon(Icons.arrow_back_ios_new, size: 18,
+                color: isDark ? Colors.white70 : Colors.black87),
             ),
           ),
 
@@ -216,21 +220,27 @@ class _RegistrationScreenState extends State<RegistrationScreen>
             style: GoogleFonts.plusJakartaSans(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: Colors.grey.shade600,
+              color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
               letterSpacing: 1.5,
             ),
           ),
 
-          // Dark mode toggle (decorative)
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(14),
+          // Dark mode toggle (functional)
+          GestureDetector(
+            onTap: () => context.read<ThemeProvider>().toggleTheme(),
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: (isDark ? Colors.white : Colors.white).withValues(alpha: isDark ? 0.1 : 0.5),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+                size: 20,
+                color: isDark ? Colors.amber : Colors.grey.shade700,
+              ),
             ),
-            child: Icon(Icons.dark_mode_outlined,
-                size: 20, color: Colors.grey.shade700),
           ),
         ],
       ),
@@ -238,15 +248,16 @@ class _RegistrationScreenState extends State<RegistrationScreen>
   }
 
   Widget _buildFormCard() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.85),
+        color: isDark ? AppColors.surfaceDark.withValues(alpha: 0.85) : Colors.white.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
+        border: Border.all(color: isDark ? AppColors.glassBorderDark : Colors.white.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1F2687).withValues(alpha: 0.05),
+            color: const Color(0xFF1F2687).withValues(alpha: isDark ? 0.15 : 0.05),
             blurRadius: 32,
             offset: const Offset(0, 8),
           ),

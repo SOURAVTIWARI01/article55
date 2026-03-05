@@ -55,7 +55,7 @@ class _VotingScreenState extends State<VotingScreen>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(gradient: AppColors.splashGradient),
+        decoration: BoxDecoration(gradient: Theme.of(context).brightness == Brightness.dark ? AppColors.splashGradientDark : AppColors.splashGradient),
         child: SafeArea(
           child: FadeTransition(
             opacity: _fadeAnimation,

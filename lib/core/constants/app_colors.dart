@@ -59,6 +59,17 @@ class AppColors {
     end: Alignment.bottomRight,
   );
 
+  static const LinearGradient splashGradientDark = LinearGradient(
+    colors: [
+      Color(0xFF1A1035),
+      Color(0xFF0F172A),
+      Color(0xFF1E1540),
+      Color(0xFF0D1117),
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
   static const LinearGradient buttonGradient = LinearGradient(
     colors: [Color(0xFF6366F1), Color(0xFF4F46E5)],
     begin: Alignment.centerLeft,
